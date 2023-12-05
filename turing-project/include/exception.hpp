@@ -1,5 +1,5 @@
-#ifndef TM_ERROR
-#define TM_ERROR
+#ifndef TM_EXCEPTION
+#define TM_EXCEPTION
 #include <string>
 class Error{
     public:

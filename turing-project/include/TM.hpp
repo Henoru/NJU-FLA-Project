@@ -3,51 +3,44 @@
 
 #include <cstdint>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <string_view>
 #include <vector>
-#include "error.hpp"
-extern bool verbose;
-extern std::vector<Error> errorList;
-typedef char        TapeChar;
-typedef std::string TapesChar;
-enum Direction{
-    Left=-1,
-    Right=1
-};
-typedef  std::pair<TapesChar,Direction> Move;
-class Tapes{
-    private :
-        int32_t index;
-        std::vector<TapesChar> pred,succ;
-    public: 
-        Tapes():index(0),pred(),succ(){}
-        void load(std::string input);
-        TapesChar pointTo();
-        void move(Move move);
-        void clean();
-};
-enum MoveState{
-    NotHalt =0,
-    Halt
-};
+#include "exception.hpp"
+#include "transform.hpp"
+#include "Tapes.hpp"
 class TM{
     private: 
-        uint32_t tape_num;
-        Tapes tapes;
-        std::set<TapeChar> inputChar,tapeChar;
-    public:
-        TM()=default;
+        std::unique_ptr<Tapes> tapes;
+        uint32_t numOfState;
+        uint32_t initState,curState;
+        bool legalInputChar[256];
+        bool legalTapeChar[256];
+        bool accept;
+        TapeChar empty;
+        std::vector<State> numToState;
+        std::set<uint32_t> acceptState;
+        std::map<State,uint32_t> stateTonum;
+        std::vector<TransformRules> trans;
+        bool setTapeNum(uint32_t tape_num);
+        bool setInitState(const State& state);
+        bool addInputChar(TapeChar c);
+        bool addTapeChar(TapeChar c);
+        bool setEmpty(TapeChar c);
+        bool addState(const State& state);
+        bool addAcceptState(const State& state);
+        bool addRules(const State& oldState,const State& mode,const State& target,Directions direct,const State& newState);
+     public:
+        TM(std::istream& file);
         TM(TM&&)=default;
-        TM(const TM&)=default;
-        TM(uint32_t tape_num,std::set<TapeChar>&& inputChar,std::set<TapesChar>&& tapeChar):
-            tape_num(tape_num),
-            inputChar(inputChar){};
-        bool load(std::string_view);
-        MoveState move(Move move);
-        std::string toPrint();
+        uint32_t tapeNum();
+        bool loadInput(std::string_view input);
+        bool move();
+        void run();
+        void init();
+        std::string result();
         TM& operator=(TM &&)=default;
-        TM& operator=(const TM&)=default;
 };
 #endif
