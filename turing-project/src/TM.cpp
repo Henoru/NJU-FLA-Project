@@ -21,6 +21,7 @@ bool TM::move(){
         tapes->move(tar->second);
         if(acceptState.count(curState))
             accept=true;
+        return true;
     }
     else return false;
 }
