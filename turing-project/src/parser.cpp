@@ -27,14 +27,14 @@ bool TM::setInitState(const State& state){
 bool TM::addInputChar(TapeChar c){
     for(auto& chr:invaildInputChar)
         if(c==chr) return false;
-    legalInputChar[c]=true;
-    return true;
+    if(legalInputChar[c]) return false;
+    return legalInputChar[c]=true;
 }
 bool TM::addTapeChar(TapeChar c){
     for(auto& chr:invaildTapeChar)
         if(c==chr) return false;
-    legalTapeChar[c]=true;
-    return true;
+    if(legalTapeChar[c]) return false;
+    return legalTapeChar[c]=true;
 }
 bool TM::addState(const State& state){
     if(stateTonum.count(state))
