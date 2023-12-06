@@ -13,7 +13,7 @@ class tmSyntaError:public std::exception {
         std::string res;
     public:
         tmSyntaError(std::string line,uint32_t Line,uint32_t ind);
-        virtual const char* what() throw();
+        virtual const char* what()const throw();
 };
 class tmTypedSyntaError:public tmSyntaError{
     protected:
@@ -21,6 +21,6 @@ class tmTypedSyntaError:public tmSyntaError{
     public:
         tmTypedSyntaError(std::string line,uint32_t Line,uint32_t ind);
         tmTypedSyntaError(std::string line,uint32_t Line,uint32_t ind,std::string type);
-        virtual const char* what()  throw();
+        virtual const char* what()const  throw();
 };
 #endif

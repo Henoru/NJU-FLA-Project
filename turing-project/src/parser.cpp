@@ -193,10 +193,10 @@ TM::TM(std::istream& file):
     for(uint32_t c=0;c<256;c++)
         if(legalInputChar[c]&& !legalTapeChar[c]){
             std::string temp;
-            temp="Input Char ";
+            temp="Input Char \'";
             temp+=std::string(1,char(c));
-            temp+=" should be included in Tape Char Set\n";
-            throw tmTypedSyntaError(std::string(1,char(c)),Line,0,temp);
+            temp+="\' should be included in Tape Char Set\n";
+            throw tmTypedSyntaError(line,Line,0,temp);
         }      
     head="#q0";
     matchSingleState(setInitState)

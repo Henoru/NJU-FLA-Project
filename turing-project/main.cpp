@@ -4,6 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <ostream>
 #include <string_view>
 #include "TM.h"
 #include "parser.h"
@@ -58,7 +59,7 @@ int main(int argc, char* argv[]){
         std::cout<< "==================== END ====================\n";
     }else{
         tm->run();
-        std::cout << tm->result(false);
+        std::cout << tm->result(false) <<std::endl;
     }
     return 0;
 }
