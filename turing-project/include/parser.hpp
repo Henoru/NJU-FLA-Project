@@ -6,4 +6,6 @@
 #include "exception.hpp"
 #include <fstream>
 #include <optional>
+
+std::optional<TM> parser(const char* path);
 #endif

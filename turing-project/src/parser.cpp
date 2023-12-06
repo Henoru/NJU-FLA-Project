@@ -1,11 +1,17 @@
 #include "parser.hpp"
+#include "TM.hpp"
 #include "Tapes.hpp"
+#include "exception.hpp"
 #include "transform.hpp"
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 char invaildChar[]={' ',',',';','{','}','*','_'};
@@ -62,12 +68,12 @@ bool TM::addRules(const State& oldState,const State& mode,const State& target,Di
     return trans[itOld->second].add(mode,itNew->second,Move(target,direct));
 }
 bool TM::setTapeNum(uint32_t tape_num){
-    if(tape_num<=0) throw;
+    if(tape_num<=0) return false;
     tapes=std::make_unique<Tapes>(tape_num,empty);
     return true;
 }
 bool TM::setEmpty(TapeChar c){
-    if(c!='_') throw;
+    if(c!='_') return false;
     empty=c;
     return true;
 }
@@ -75,28 +81,28 @@ bool TM::setEmpty(TapeChar c){
         while(ind<line.length()&&line[ind]==' ') ind++;\
         if(ind==line.length()) continue;\
         if(line[ind]==';') continue;\
-        if(ind+head.length()>line.length()) throw;\
+        if(ind+head.length()>line.length()) throw  tmSyntaError(line,Line,ind);\
         for(int j=0;j<head.length();j++,ind++)\
             if(line[ind]!=head[j])\
-                throw;\
+                throw  tmSyntaError(line,Line,ind);\
         while(ind<line.length()&&line[ind]==' ') ind++;\
-        if(ind==line.length()||line[ind]!='=') throw; \
+        if(ind==line.length()||line[ind]!='=') throw  tmSyntaError(line,Line,ind); \
         else ind++;
 #define matchL \
     for(;ind<line.length();ind++)\
         if(line[ind]==' ') continue;\
-        else if(line[ind]=='{') break;\
-        else throw;\
-    if(ind==line.length()) throw;
+        else if(line[ind]=='{') {ind++;break;}\
+        else throw  tmSyntaError(line,Line,ind);\
+    if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
 #define matchR \
     for(;ind<line.length();ind++)\
         if(line[ind]==' ') continue;\
         else if(line[ind]==';') break;\
-        else throw;
+        else throw  tmSyntaError(line,Line,ind);
 #define between(c,x,y) (x<=c && c<=y)
 bool charInState(char c){
-    return ( between(c, 'a', 'b') ||
-             between(c, 'A', 'B') ||
+    return ( between(c, 'a', 'z') ||
+             between(c, 'A', 'Z') ||
              between(c, '0', '9') ||
              c=='_');
 }
@@ -113,16 +119,17 @@ TM::TM(std::istream& file){
         for(;ind<line.length();ind++){
             std::string item="";
             while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw;
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
             while(ind<line.length()&&charInState(line[ind]))
                 item+=line[ind++];
-            if(ind==line.length()) throw;
-            addState(item);
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
+            if(!addState(item)) throw  tmSyntaError(line,Line,ind);
             while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw;
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
             if(line[ind]==',') continue;
-            if(line[ind]=='}') continue;
+            if(line[ind]=='}') break;
         }
+        ind++;
         matchR
     }
     head="#S";
@@ -133,13 +140,14 @@ TM::TM(std::istream& file){
         for(;ind<line.length();ind++){
             std::string item="";
             while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw;
-            addInputChar(line[ind++]);
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
+            if(!addInputChar(line[ind++])) throw  tmSyntaError(line,Line,ind);
             while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw;
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
             if(line[ind]==',') continue;
-            if(line[ind]=='}') continue;
+            if(line[ind]=='}') break;
         }
+        ind++;
         matchR
     }
     head="#G";
@@ -150,13 +158,14 @@ TM::TM(std::istream& file){
         for(;ind<line.length();ind++){
             std::string item="";
             while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw;
-            addTapeChar(line[ind++]);
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
+            if(!addTapeChar(line[ind++])) throw  tmSyntaError(line,Line,ind);
             while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw;
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
             if(line[ind]==',') continue;
-            if(line[ind]=='}') continue;
+            if(line[ind]=='}') break;;
         }
+        ind++;
         matchR
     }
     head="#q0";
@@ -165,7 +174,7 @@ TM::TM(std::istream& file){
         matchHead
         std::string item="";
         while(ind<line.length()&&line[ind]==' ') ind++;
-        if(ind==line.length()) throw;
+        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
         while(ind<line.length() && charInState(line[ind])) 
             item+=line[ind++];
         setInitState(item);
@@ -177,8 +186,8 @@ TM::TM(std::istream& file){
         matchHead
         std::string item="";
         while(ind<line.length()&&line[ind]==' ') ind++;
-        if(ind==line.length()) throw;
-        setEmpty(line[ind++]);
+        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
+        if(!setEmpty(line[ind++])) throw  tmSyntaError(line,Line,ind);
         matchR
     }
     head="#F";
@@ -189,16 +198,17 @@ TM::TM(std::istream& file){
         for(;ind<line.length();ind++){
             std::string item="";
             while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw;
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
             while(ind<line.length()&&charInState(line[ind]))
                 item+=line[ind++];
-            if(ind==line.length()) throw;
-            addAcceptState(item);
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
+            if(!addAcceptState(item)) throw  tmSyntaError(line,Line,ind);
             while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw;
+            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
             if(line[ind]==',') continue;
-            if(line[ind]=='}') continue;
+            if(line[ind]=='}') break;
         }
+        ind++;
         matchR
     }
     head="#N";
@@ -207,10 +217,10 @@ TM::TM(std::istream& file){
         matchHead
         uint32_t item=0;
         while(ind<line.length()&&line[ind]==' ') ind++;
-        if(ind==line.length()) throw;
+        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
         while(ind<line.length() && between(line[ind], '0', '9')) 
             item=item*10+(line[ind++]-'0');
-        setTapeNum(item);
+        if(!setTapeNum(item)) throw  tmSyntaError(line,Line,ind);
         matchR
     }
     head="";
@@ -225,19 +235,37 @@ TM::TM(std::istream& file){
         while(ind<line.length() && line[ind]!=' ')
             oldState+=line[ind++];
         while(ind<line.length() && line[ind]==' ') ind++;
-        if(ind==line.length()) throw;
+        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
         while(ind<line.length() && line[ind]!=' ')
             mode+=line[ind++];
         while(ind<line.length() && line[ind]==' ') ind++;
-        if(ind==line.length()) throw;
+        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
         while(ind<line.length() && line[ind]!=' ')
             target+=line[ind++];
         while(ind<line.length() && line[ind]==' ') ind++;
-        if(ind==line.length()) throw;
+        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
         while(ind<line.length() && line[ind]!=' ')
             direct+=line[ind++];
-        while(ind<line.length() && line[ind]==' ') ind++;
-        if(ind==line.length()) throw;
+        if(!addRules(oldState, mode, target, direct, newState)) throw  tmSyntaError(line,Line,ind);
         matchR
+    }
+}
+
+std::optional<TM> parser(const char* path){
+    std::ifstream file;
+    file.open(path,std::ios_base::in);
+    if(!file.is_open()) {
+        std::cerr <<  "TM file " << path << " can't be open\n";
+        return  std::nullopt;
+    }
+    try {
+        TM tm(file);
+        file.close();
+        return std::make_optional(std::move(tm));
+    } catch (tmSyntaError s) {
+        if(verbose) std::cerr << s.what();
+        else std::cerr << "syntax error\n";
+        file.close();
+        return std::nullopt;
     }
 }
