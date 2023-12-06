@@ -80,6 +80,7 @@ bool TM::setTapeNum(uint32_t tape_num){
 }
 bool TM::setEmpty(TapeChar c){
     if(c!='_') return false;
+    if(!legalTapeChar[c]) return false;
     empty=c;
     return true;
 }
