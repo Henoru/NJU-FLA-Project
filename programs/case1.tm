@@ -1,8 +1,8 @@
-#Q = {0,a,b,ret,cpy,bak,acc,ilg}
+#Q = {0,a,b,ret,cpy,bak,acc,ilg,emp,inv,i,il,ill,lle,leg,ega,gal,inr}
 
 #S = {a,b}
 
-#G = {a,b,_,X,i,l,e,g,i,n,p,u,t}
+#G = {a,b,c,_,X,i,l,e,g,i,n,p,u,t}
 
 #q0 = 0
 
@@ -21,7 +21,7 @@ b   ___ ___ lll ret
 ret _** _** l** ret
 ret Xa* Xa* *l* ret
 ret X_b X_b **l ret
-ret X__ ___ rrr cpy
+ret X__ ___ *rr cpy
 ;illegal input
 0 b** b** *** emp ; no a
 0 _** _** *** emp ; empty
@@ -29,7 +29,7 @@ a _** _** *** inv ; no b
 b a** a** *** inv ; a between b
 
 ;1: Start copy b to Tape0
-cpy _ab bab r*r cpy
+cpy _ab cab r*r cpy
 cpy _a_ _a_ **l bak
 bak _ab _ab **l bak
 bak _a_ _a_ *rr cpy
