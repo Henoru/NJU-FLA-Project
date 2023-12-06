@@ -16,8 +16,8 @@ class TM{
         std::unique_ptr<Tapes> tapes;
         uint32_t numOfState;
         uint32_t initState,curState;
-        bool legalInputChar[256]={0};
-        bool legalTapeChar[256]={0};
+        bool legalInputChar[256];
+        bool legalTapeChar[256];
         bool accept;
         uint32_t step;
         TapeChar empty;

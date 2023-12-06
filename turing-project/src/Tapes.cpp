@@ -1,6 +1,7 @@
 #include "Tapes.h"
 #include <cstdint>
 #include <cstdlib>
+#include <iterator>
 #include <string>
 #include <string_view>
 
@@ -62,6 +63,7 @@ std::string Tape::to_str(){
     ID(ans,index,ans);
     return ans;
 }
+TapeChar Tape::getEmpty(){return empty;}
 Tapes::Tapes(uint32_t tape_num,TapeChar empty):tape_num(tape_num){
     tapes.clear();
     for(uint32_t i=0;i<tape_num;i++)
@@ -72,7 +74,11 @@ void Tapes::move(Move move){
         tapes[i].move(move.target[i],static_cast<Direction>(move.direct[i]));
 }
 std::string Tapes::result(){
-    return tapes[0].to_str();
+    std::string&& tmp=tapes[0].to_str();
+    uint32_t l=0,r=tmp.length();
+    while(l<tmp.length() && tmp[l]==tapes[0].getEmpty()) ++l;
+    while(r>l && tmp[r-1]==tapes[0].getEmpty()) --r;
+    return tmp.substr(l,r-l); 
 }
 TapesChar Tapes::pointTo(){
     TapesChar res="";

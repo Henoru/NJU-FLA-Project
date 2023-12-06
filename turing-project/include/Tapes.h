@@ -29,6 +29,7 @@ class Tape{
         TapeChar pointTo();
         void move(TapeChar target,Direction direct);
         void clear();
+        TapeChar getEmpty(); 
         std::string to_str();
         void ID(std::string& L,int32_t& index,std::string& R);
 };

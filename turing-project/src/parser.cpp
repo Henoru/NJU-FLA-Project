@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -182,6 +183,8 @@ TM::TM(std::istream& file):
         tapes(nullptr),numOfState(0),
         initState(0),curState(0),empty('_')
 {
+    memset(legalInputChar,0,sizeof(legalTapeChar));
+    memset(legalTapeChar, 0, sizeof(legalTapeChar));
     uint32_t state=0;
     uint32_t Line=0;
     std::string line;
