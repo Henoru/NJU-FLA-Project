@@ -8,12 +8,12 @@
 #include <string_view>
 
 uint32_t TM::tapeNum(){return tapes->tapeNum();}
-bool TM::loadInput(std::string_view input){
-    for(auto& c:input)
-        if(!legalInputChar[c])
-            return false;
+uint32_t TM::loadInput(std::string_view input){
+    for(uint32_t ind=0;ind<input.length();ind++)
+        if(!legalInputChar[input[ind]])
+            return ind+1;
     tapes->load(input);
-    return true;
+    return 0;
 }
 bool TM::move(){
     step++;

@@ -1,3 +1,4 @@
+#include <cstdint>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -35,8 +36,13 @@ int main(int argc, char* argv[]){
     tm=parser(argv[ind]);
     if(!tm.has_value())exit(-1);
     tm->init();
-    if(!tm->loadInput(argv[ind+1])){
-        std::cerr << "illegal input string\n";
+    if(uint32_t code=tm->loadInput(argv[ind+1]);code>0){
+        if(verbose){
+            std::cerr << "error: Symbol \""<< argv[ind+1][code-1] <<"\" in input is not defined in the set of input symbols\n";
+            std::cerr << "Input: " << argv[ind+1] << std::endl;
+            std::cerr << std::string(7+code-1,' ') << "^\n";
+        }
+        else std::cerr << "illegal input string\n";
         return -1;
     }
     else if(verbose){

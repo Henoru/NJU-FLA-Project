@@ -46,7 +46,10 @@ class TM{
         TM(TM&&)=default;
         uint32_t tapeNum();
         void initTapes();
-        bool loadInput(std::string_view input);
+        /* ret:0 load Succ
+           >0 :invaid Char position in input(start from 1)  
+        */
+        uint32_t loadInput(std::string_view input);
         bool move();
         void run();
         bool run(std::string_view input);
