@@ -1,8 +1,8 @@
-#Q = {0,a,b,ret,cpy,bak,acc,ilg,emp,inv,i,il,ill,lle,leg,ega,gal,inr,al_,l_i,_in,inp,npu,put}
+#Q = {0,a,b,ret,cpy,bak,acc,ilg,emp,inv,i,il,ill,lle,leg,ega,gal,inr,al_,l_I}
 
 #S = {a,b}
 
-#G = {a,b,c,_,X,I,l,e,g,i,n,p,u,t}
+#G = {a,b,c,_,X,I,l,e,g,n,p,u,t}
 
 #q0 = 0
 
