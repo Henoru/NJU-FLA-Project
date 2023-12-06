@@ -59,11 +59,11 @@ uint32_t TM::addRules(const State& oldState,const State& mode,const State& targe
     if(mode.length()!=tapeNum())
         return 2;
     for(auto &c:mode)
-        if(!legalTapeChar[c]) return 2;
+        if(c!='*'&&!legalTapeChar[c]) return 2;
     if(target.length()!=tapeNum())
         return 3;
     for(auto &c:target)
-        if(!legalTapeChar[c]) return 3;
+        if(c!='*'&&!legalTapeChar[c]) return 3;
     for(uint32_t i=0;i<tapeNum();i++)
         if(mode[i]!='*' && target[i]=='*')
             return 3;
