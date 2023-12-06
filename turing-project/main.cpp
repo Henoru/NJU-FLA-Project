@@ -4,8 +4,8 @@
 #include <memory>
 #include <optional>
 #include <string_view>
-#include "TM.hpp"
-#include "parser.hpp"
+#include "TM.h"
+#include "parser.h"
 using namespace std;
 void help();
 bool verbose=false;

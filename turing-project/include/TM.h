@@ -8,9 +8,9 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include "exception.hpp"
-#include "transform.hpp"
-#include "Tapes.hpp"
+#include "exception.h"
+#include "transform.h"
+#include "Tapes.h"
 class TM{
     private: 
         std::unique_ptr<Tapes> tapes;

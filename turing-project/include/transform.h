@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include "Tapes.hpp"
+#include "Tapes.h"
 typedef std::string State;
 typedef std::pair<uint32_t,Move> TransTarget;
 class TransformRules{

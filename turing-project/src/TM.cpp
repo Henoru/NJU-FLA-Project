@@ -1,6 +1,6 @@
-#include "TM.hpp"
-#include "Tapes.hpp"
-#include "transform.hpp"
+#include "TM.h"
+#include "Tapes.h"
+#include "transform.h"
 #include <cstdint>
 #include <memory>
 #include <optional>

@@ -1,8 +1,8 @@
-#include "parser.hpp"
-#include "TM.hpp"
-#include "Tapes.hpp"
-#include "exception.hpp"
-#include "transform.hpp"
+#include "parser.h"
+#include "TM.h"
+#include "Tapes.h"
+#include "exception.h"
+#include "transform.h"
 #include <array>
 #include <cstddef>
 #include <cstdint>
