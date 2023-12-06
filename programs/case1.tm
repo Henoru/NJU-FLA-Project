@@ -1,8 +1,8 @@
-#Q = {0,a,b,ret,cpy,bak,acc,ilg,emp,inv,i,il,ill,lle,leg,ega,gal,inr}
+#Q = {0,a,b,ret,cpy,bak,acc,ilg,emp,inv,i,il,ill,lle,leg,ega,gal,inr,al_,l_i,_in,inp,npu,put}
 
 #S = {a,b}
 
-#G = {a,b,c,_,X,i,l,e,g,i,n,p,u,t}
+#G = {a,b,c,_,X,I,l,e,g,i,n,p,u,t}
 
 #q0 = 0
 
@@ -35,16 +35,22 @@ bak _ab _ab **l bak
 bak _a_ _a_ *rr cpy
 cpy __b __b *** acc
 
-;2: write illegal
-emp *** i** r** i
+;2: write Illegal_Input
+emp *** I** r** i
 i   *** l** r** il
 il  *** l** r** ill
 ill *** e** r** lle
 lle *** g** r** leg
 leg *** a** r** ega
 ega *** l** r** gal
-gal a** _** r** gal
-gal b** _** r** gal
+gal *** _** r** al_
+al_ *** I** r** l_i
+l_i *** n** r** _in 
+_in *** p** r** inp
+inp *** u** r** npu
+npu *** t** r** put
+put a** _** r** put
+put b** _** r** put
 
 inv a** _** r** inv
 inv b** _** r** inv
