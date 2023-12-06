@@ -10,8 +10,8 @@ typedef std::pair<uint32_t,Move> TransTarget;
 class TransformRules{
     private:
         struct node{
-            node* ch[256];
-            TransTarget* tar;
+            node* ch[256]={};
+            TransTarget* tar{nullptr};
             ~node(){
                 for(int i=0;i<256;i++)
                     delete ch[i];

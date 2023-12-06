@@ -34,11 +34,25 @@ int main(int argc, char* argv[]){
     }
     tm=parser(argv[ind]);
     if(!tm.has_value())exit(-1);
+    tm->init();
     if(!tm->loadInput(argv[ind+1])){
         std::cerr << "illegal input string\n";
-        return 0;
+        return -1;
     }
-    tm->init();
-    tm->run();
+    else if(verbose){
+        std::cout << "Input: "<< argv[ind+1] << std::endl <<
+        "==================== RUN ====================\n";
+        std::cout << tm->ID();
+        std::cout<< "---------------------------------------------\n";
+        while(tm->move()){
+            std::cout<< tm->ID();
+            std::cout<< "---------------------------------------------\n";
+        }
+        std::cout<< tm->result(true);
+        std::cout<< "==================== END ====================\n";
+    }else{
+        tm->run();
+        std::cout << tm->result(false);
+    }
     return 0;
 }

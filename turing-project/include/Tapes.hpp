@@ -22,11 +22,15 @@ class Tape{
         int32_t index;
         TapeChar empty;
         std::deque<TapeChar> pred,succ;
+        void clean_buf();
     public: 
         Tape(TapeChar empty);
         void load(std::string_view input);
         TapeChar pointTo();
         void move(TapeChar target,Direction direct);
+        void clear();
+        std::string to_str();
+        void ID(std::string& L,int32_t& index,std::string& R);
 };
 class Tapes{
     private:
@@ -38,5 +42,8 @@ class Tapes{
         TapesChar pointTo();
         uint32_t tapeNum();
         void load(std::string_view input);
+        void clear();
+        std::string result();
+        std::string ID();
 };
 #endif

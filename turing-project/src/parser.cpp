@@ -14,7 +14,8 @@
 #include <optional>
 #include <string>
 #include <vector>
-char invaildChar[]={' ',',',';','{','}','*','_'};
+char invaildInputChar[]=" ,;{}*_";
+char invaildTapeChar[] =" ,;{}*";
 bool TM::setInitState(const State& state){
     auto it=stateTonum.find(state);
     if(it==stateTonum.end())
@@ -23,13 +24,13 @@ bool TM::setInitState(const State& state){
     return true;
 }
 bool TM::addInputChar(TapeChar c){
-    for(auto& chr:invaildChar)
+    for(auto& chr:invaildInputChar)
         if(c==chr) return false;
     legalInputChar[c]=true;
     return true;
 }
 bool TM::addTapeChar(TapeChar c){
-    for(auto& chr:invaildChar)
+    for(auto& chr:invaildTapeChar)
         if(c==chr) return false;
     legalInputChar[c]=true;
             legalTapeChar[c]=true;
@@ -50,22 +51,27 @@ bool TM::addAcceptState(const State& state){
     acceptState.insert(it->second);
     return true;
 }
-bool TM::addRules(const State& oldState,const State& mode,const State& target,Directions direct,const State& newState){
+uint32_t TM::addRules(const State& oldState,const State& mode,const State& target,Directions direct,const State& newState){
     auto itOld=stateTonum.find(oldState);
     auto itNew=stateTonum.find(newState);
     if(itOld==stateTonum.end())
-        return false;
+        return 1;
     if(mode.length()!=tapeNum())
-        return false;
+        return 2;
+    for(auto &c:mode)
+        if(!legalTapeChar[c]) return 2;
     if(target.length()!=tapeNum())
-        return false;
+        return 3;
+    for(auto &c:target)
+        if(!legalTapeChar[c]) return 3;
     for(uint32_t i=0;i<tapeNum();i++)
         if(mode[i]!='*' && target[i]=='*')
-            return false;
+            return 3;
+    for(auto & c:direct)
+        if(c!='l' && c!='r' && c!='*') return 4;
     if(itNew==stateTonum.end())
-        return false;
-
-    return trans[itOld->second].add(mode,itNew->second,Move(target,direct));
+        return 5;
+    return (trans[itOld->second].add(mode,itNew->second,Move(target,direct)))?0:2;
 }
 bool TM::setTapeNum(uint32_t tape_num){
     if(tape_num<=0) return false;
@@ -98,7 +104,8 @@ bool TM::setEmpty(TapeChar c){
     for(;ind<line.length();ind++)\
         if(line[ind]==' ') continue;\
         else if(line[ind]==';') break;\
-        else throw  tmSyntaError(line,Line,ind);
+        else throw  tmSyntaError(line,Line,ind);\
+    break;
 #define between(c,x,y) (x<=c && c<=y)
 bool charInState(char c){
     return ( between(c, 'a', 'z') ||
@@ -107,120 +114,106 @@ bool charInState(char c){
              c=='_');
 }
 #define match(str) match##str(file,Line);
-TM::TM(std::istream& file){
+#define matchBlank \
+while(ind<line.length()&&line[ind]==' ') ind++;\
+if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
+
+#define matchNextItem \
+if(line[ind]==',') continue;\
+if(line[ind]=='}') {ind++;break;}\
+else throw tmSyntaError(line,Line,ind);
+#define matchStateItem \
+std::string item;\
+uint32_t token_head=ind;\
+while(ind<line.length()&&charInState(line[ind]))\
+    item+=line[ind++];
+
+#define mathchCharItem \
+char item=line[ind];\
+uint32_t token_head=ind++;
+#define matchSingleState(fun) \
+for(;std::getline(file,line);Line++){\
+        uint32_t ind=0;\
+        matchHead\
+        matchBlank\
+        matchStateItem\
+        if(!fun(item)) throw tmSyntaError(line,Line,token_head);\
+        matchR\
+    }
+#define matchMultiState(fun) \
+for(;std::getline(file,line);Line++){\
+        uint32_t ind=0;\
+        matchHead\
+        matchL\
+        for(;ind<line.length();ind++){\
+            matchBlank\
+            matchStateItem\
+            if(!fun(item)) throw  tmSyntaError(line,Line,token_head);\
+            matchBlank\
+            matchNextItem\
+        }\
+        matchR\
+    }
+#define matchSigleChar(fun) \
+for(;std::getline(file,line);Line++){\
+        uint32_t ind=0;\
+        matchHead\
+        matchBlank\
+        mathchCharItem\
+        if(!fun(item)) throw  tmSyntaError(line,Line,token_head);\
+        matchR\
+    }
+#define matchMultiChar(fun) \
+for(;std::getline(file,line);Line++){\
+        uint32_t ind=0;\
+        matchHead\
+        matchL\
+        for(;ind<line.length();ind++){\
+            matchBlank\
+            mathchCharItem\
+            if(!fun(item)) throw  tmSyntaError(line,Line,token_head);\
+            matchBlank\
+            matchNextItem\
+        }\
+        matchR\
+    }
+TM::TM(std::istream& file):
+        tapes(nullptr),numOfState(0),
+        initState(0),curState(0),empty('_')
+{
     uint32_t state=0;
     uint32_t Line=0;
     std::string line;
     std::string head="#Q";
-    for(;std::getline(file,line);Line++){
-        uint32_t ind=0;
-        matchHead
-        matchL
-        for(;ind<line.length();ind++){
-            std::string item="";
-            while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            while(ind<line.length()&&charInState(line[ind]))
-                item+=line[ind++];
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            if(!addState(item)) throw  tmSyntaError(line,Line,ind);
-            while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            if(line[ind]==',') continue;
-            if(line[ind]=='}') break;
-        }
-        ind++;
-        matchR
-    }
+    matchMultiState(addState)
     head="#S";
-    for(;std::getline(file,line);Line++){
-        uint32_t ind=0;
-        matchHead
-        matchL
-        for(;ind<line.length();ind++){
-            std::string item="";
-            while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            if(!addInputChar(line[ind++])) throw  tmSyntaError(line,Line,ind);
-            while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            if(line[ind]==',') continue;
-            if(line[ind]=='}') break;
-        }
-        ind++;
-        matchR
-    }
+    matchMultiChar(addInputChar)
     head="#G";
-    for(;std::getline(file,line);Line++){
-        uint32_t ind=0;
-        matchHead
-        matchL
-        for(;ind<line.length();ind++){
-            std::string item="";
-            while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            if(!addTapeChar(line[ind++])) throw  tmSyntaError(line,Line,ind);
-            while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            if(line[ind]==',') continue;
-            if(line[ind]=='}') break;;
-        }
-        ind++;
-        matchR
-    }
+    matchMultiChar(addTapeChar)
+    for(uint32_t c=0;c<256;c++)
+        if(legalInputChar[c]&& !legalTapeChar[c]){
+            std::string temp;
+            temp="Input Char ";
+            temp+=std::string(1,char(c));
+            temp+=" should be included in Tape Char Set\n";
+            throw tmTypedSyntaError(std::string(1,char(c)),Line,0,temp);
+        }      
     head="#q0";
-    for(;std::getline(file,line);Line++){
-        uint32_t ind=0;
-        matchHead
-        std::string item="";
-        while(ind<line.length()&&line[ind]==' ') ind++;
-        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-        while(ind<line.length() && charInState(line[ind])) 
-            item+=line[ind++];
-        setInitState(item);
-        matchR
-    }
+    matchSingleState(setInitState)
     head="#B";
-    for(;std::getline(file,line);Line++){
-        uint32_t ind=0;
-        matchHead
-        std::string item="";
-        while(ind<line.length()&&line[ind]==' ') ind++;
-        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-        if(!setEmpty(line[ind++])) throw  tmSyntaError(line,Line,ind);
-        matchR
-    }
+    matchSigleChar(setEmpty)
     head="#F";
-    for(;std::getline(file,line);Line++){
-        uint32_t ind=0;
-        matchHead
-        matchL
-        for(;ind<line.length();ind++){
-            std::string item="";
-            while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            while(ind<line.length()&&charInState(line[ind]))
-                item+=line[ind++];
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            if(!addAcceptState(item)) throw  tmSyntaError(line,Line,ind);
-            while(ind<line.length()&&line[ind]==' ') ind++;
-            if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-            if(line[ind]==',') continue;
-            if(line[ind]=='}') break;
-        }
-        ind++;
-        matchR
-    }
+    matchMultiState(addAcceptState)
     head="#N";
     for(;std::getline(file,line);Line++){
         uint32_t ind=0;
         matchHead
         uint32_t item=0;
-        while(ind<line.length()&&line[ind]==' ') ind++;
-        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
+        matchBlank
+        uint32_t token_head=ind;
         while(ind<line.length() && between(line[ind], '0', '9')) 
             item=item*10+(line[ind++]-'0');
-        if(!setTapeNum(item)) throw  tmSyntaError(line,Line,ind);
+        if(!setTapeNum(item)) throw  tmSyntaError(line,Line,token_head);
         matchR
     }
     head="";
@@ -229,25 +222,35 @@ TM::TM(std::istream& file){
         while(ind<line.length() && line[ind]==' ') ind++;
         if(ind==line.length()) continue;
         if(line[ind]==';') continue;
-        State oldState="",newState="";
-        std::string mode="",target="";
-        Directions direct="";
-        while(ind<line.length() && line[ind]!=' ')
-            oldState+=line[ind++];
-        while(ind<line.length() && line[ind]==' ') ind++;
-        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-        while(ind<line.length() && line[ind]!=' ')
-            mode+=line[ind++];
-        while(ind<line.length() && line[ind]==' ') ind++;
-        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-        while(ind<line.length() && line[ind]!=' ')
-            target+=line[ind++];
-        while(ind<line.length() && line[ind]==' ') ind++;
-        if(ind==line.length()) throw  tmSyntaError(line,Line,ind);
-        while(ind<line.length() && line[ind]!=' ')
-            direct+=line[ind++];
-        if(!addRules(oldState, mode, target, direct, newState)) throw  tmSyntaError(line,Line,ind);
-        matchR
+        do{
+            State oldState="",newState="";
+            std::string mode="",target="";
+            Directions direct="";
+            uint32_t token_head[5],cnt=0;
+            token_head[cnt++]=ind;
+            while(ind<line.length() && line[ind]!=' ')
+                oldState+=line[ind++];
+            matchBlank
+            token_head[cnt++]=ind;
+            while(ind<line.length() && line[ind]!=' ')
+                mode+=line[ind++];
+            matchBlank
+            token_head[cnt++]=ind;
+            while(ind<line.length() && line[ind]!=' ')
+                target+=line[ind++];
+            matchBlank
+            token_head[cnt++]=ind;
+            while(ind<line.length() && line[ind]!=' ')
+                direct+=line[ind++];
+            matchBlank
+            token_head[cnt++]=ind;
+            while(ind<line.length() && line[ind]!=' ')
+                newState+=line[ind++];
+            uint32_t ret_code=addRules(oldState, mode, target, direct, newState);
+            if(ret_code) 
+                throw  tmSyntaError(line,Line,token_head[ret_code-1]);
+            matchR
+        }while(0);
     }
 }
 
@@ -267,5 +270,5 @@ std::optional<TM> parser(const char* path){
         else std::cerr << "syntax error\n";
         file.close();
         return std::nullopt;
-    }
+    } 
 }
