@@ -62,7 +62,7 @@ std::string TM::ID(){
     uint32_t wid=5+std::to_string(tapeNum()).length();
     Step+=std::string(wid-Step.length()+1,' ');
     State+=std::string(wid-State.length()+1,' ');
-    Acc+=std::string(wid-Acc.length(),' ');
+    Acc+=std::string(wid-Acc.length()+1,' ');
     Step.append(": ").append(std::to_string(step));
     State.append(": ").append(numToState[curState]);
     Acc.append(": ").append(accept?"Yes":"No");
