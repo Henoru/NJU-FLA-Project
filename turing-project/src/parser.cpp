@@ -33,8 +33,7 @@ bool TM::addInputChar(TapeChar c){
 bool TM::addTapeChar(TapeChar c){
     for(auto& chr:invaildTapeChar)
         if(c==chr) return false;
-    legalInputChar[c]=true;
-            legalTapeChar[c]=true;
+    legalTapeChar[c]=true;
     return true;
 }
 bool TM::addState(const State& state){
@@ -194,6 +193,7 @@ TM::TM(std::istream& file):
     matchMultiChar(addInputChar)
     head="#G";
     matchMultiChar(addTapeChar)
+    // Input <= Tape
     for(uint32_t c=0;c<256;c++)
         if(legalInputChar[c]&& !legalTapeChar[c]){
             std::string temp;
