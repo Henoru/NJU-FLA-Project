@@ -94,7 +94,8 @@ bool TM::setEmpty(TapeChar c){
                 throw  tmSyntaError(line,Line,ind);\
         while(ind<line.length()&&line[ind]==' ') ind++;\
         if(ind==line.length()||line[ind]!='=') throw  tmSyntaError(line,Line,ind); \
-        else ind++;
+        else ind++;\
+        Empty=false;
 #define matchL \
     for(;ind<line.length();ind++)\
         if(line[ind]==' ') continue;\
@@ -126,59 +127,44 @@ uint32_t token_head=ind;\
 while(ind<line.length()&&charInState(line[ind]))\
     item+=line[ind++];
 
-#define mathchCharItem \
+#define matchCharItem \
 char item=line[ind];\
 uint32_t token_head=ind++;
-#define matchSingleState(fun) \
+
+#define matchSingle(fun,typ) \
+Empty=true;\
 for(;std::getline(file,line);Line++){\
         uint32_t ind=0;\
         matchHead\
         matchBlank\
-        matchStateItem\
+        match##typ##Item\
         if(!fun(item)) throw tmSyntaError(line,Line,token_head);\
         matchR\
         Line++;break;\
     }
-#define matchMultiState(fun) \
+#define matchMulti(fun,typ) \
+Empty=true,contentEmpty=false;\
 for(;std::getline(file,line);Line++){\
         uint32_t ind=0;\
         matchHead\
         matchL\
-        for(;ind<line.length();ind++){\
-            matchBlank\
-            matchStateItem\
-            if(!fun(item)) throw  tmSyntaError(line,Line,token_head);\
-            matchBlank\
-            matchNextItem\
-        }\
-        matchR\
-        Line++;break;\
-    }
-#define matchSigleChar(fun) \
-for(;std::getline(file,line);Line++){\
-        uint32_t ind=0;\
-        matchHead\
         matchBlank\
-        mathchCharItem\
-        if(!fun(item)) throw  tmSyntaError(line,Line,token_head);\
-        matchR\
-        Line++;break;\
-    }
-#define matchMultiChar(fun) \
-for(;std::getline(file,line);Line++){\
-        uint32_t ind=0;\
-        matchHead\
-        matchL\
-        for(;ind<line.length();ind++){\
-            matchBlank\
-            mathchCharItem\
-            if(!fun(item)) throw  tmSyntaError(line,Line,token_head);\
-            matchBlank\
-            matchNextItem\
+        if(line[ind]=='}') contentEmpty=true,ind++;\
+        else{\
+            for(;ind<line.length();ind++){\
+                matchBlank\
+                match##typ##Item\
+                if(!fun(item)) throw  tmSyntaError(line,Line,token_head);\
+                matchBlank\
+                matchNextItem\
+            }\
         }\
         matchR\
         Line++;break;\
-    }
+    }\
+if(Empty) throw tmTypedSyntaError("",Line,0,"Lacking member "+head);
+#define NonEmpty \
+if(contentEmpty) throw tmTypedSyntaError(line,Line,0,head+" can't be empty");
 TM::TM(std::istream& file):
         tapes(nullptr),numOfState(0),
         initState(0),curState(0),empty('_')
@@ -188,12 +174,15 @@ TM::TM(std::istream& file):
     uint32_t state=0;
     uint32_t Line=1;
     std::string line;
+    bool Empty,contentEmpty;
     std::string head="#Q";
-    matchMultiState(addState)
+    matchMulti(addState,State)
+    NonEmpty
     head="#S";
-    matchMultiChar(addInputChar)
+    matchMulti(addInputChar,Char)
     head="#G";
-    matchMultiChar(addTapeChar)
+    matchMulti(addTapeChar,Char)
+    NonEmpty
     // Input <= Tape
     for(uint32_t c=0;c<256;c++)
         if(legalInputChar[c]&& !legalTapeChar[c]){
@@ -201,14 +190,14 @@ TM::TM(std::istream& file):
             temp="Input symbol \'";
             temp+=std::string(1,char(c));
             temp+="\' should be included in the set of tape symbols\n";
-            throw tmTypedSyntaError(line,Line,0,temp);
+            throw tmTypedSyntaError(line,Line,0,temp); 
         }      
     head="#q0";
-    matchSingleState(setInitState)
+    matchSingle(setInitState,State)
     head="#B";
-    matchSigleChar(setEmpty)
+    matchSingle(setEmpty,Char)
     head="#F";
-    matchMultiState(addAcceptState)
+    matchMulti(addAcceptState,State)
     head="#N";
     for(;std::getline(file,line);Line++){
         uint32_t ind=0;

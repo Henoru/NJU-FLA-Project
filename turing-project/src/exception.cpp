@@ -17,12 +17,5 @@ tmTypedSyntaError::tmTypedSyntaError(std::string line,uint32_t Line,uint32_t ind
 tmTypedSyntaError::tmTypedSyntaError(std::string line,uint32_t Line,uint32_t ind,std::string type):
     tmSyntaError(line,Line,ind),type(type){
         std::string num=std::to_string(Line);
-        res="SyntaxError\nLine ";
-        res+=num+":";
-        res+=line+"\n"+std::string(6+num.length()+ind,' ')+"^\n"+type+"\n";
+        res="SyntaxError\nLine "+num+":"+line+"\n"+std::string(6+num.length()+ind,' ')+"^\n"+type+"\n";
     }
-
-const char* tmTypedSyntaError::what()const throw(){
-    
-    return res.c_str();
-}
