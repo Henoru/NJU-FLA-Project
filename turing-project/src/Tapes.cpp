@@ -124,7 +124,7 @@ std::string Tapes::ID(){
             Head+=std::string(num.length(),' ');
             hd++;
         }
-        res.append(Index).append("\n").append(Tape).append("\n").append(Head).append("\n");
+        res+=Index+"\n"+Tape+"\n"+Head+"\n";
     }
     return res;
 }

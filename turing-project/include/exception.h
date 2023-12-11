@@ -21,6 +21,5 @@ class tmTypedSyntaError:public tmSyntaError{
     public:
         tmTypedSyntaError(std::string line,uint32_t Line,uint32_t ind);
         tmTypedSyntaError(std::string line,uint32_t Line,uint32_t ind,std::string type);
-        virtual const char* what()const  throw();
 };
 #endif

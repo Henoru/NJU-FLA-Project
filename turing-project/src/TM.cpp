@@ -63,8 +63,8 @@ std::string TM::ID(){
     Step+=std::string(wid-Step.length()+1,' ');
     State+=std::string(wid-State.length()+1,' ');
     Acc+=std::string(wid-Acc.length()+1,' ');
-    Step.append(": ").append(std::to_string(step));
-    State.append(": ").append(numToState[curState]);
-    Acc.append(": ").append(accept?"Yes":"No");
-    return res.append(Step).append("\n").append(State).append("\n").append(Acc).append("\n").append(tapes->ID());
+    Step+=": "+std::to_string(step);
+    State+=": "+numToState[curState];
+    Acc+=": "+std::string((accept?"Yes":"No"));
+    return Step+"\n"+State+"\n"+Acc+"\n"+tapes->ID();
 }
