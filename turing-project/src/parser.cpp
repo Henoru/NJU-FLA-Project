@@ -220,7 +220,7 @@ TM::TM(std::istream& file):
             item=item*10+(line[ind++]-'0');
         if(!setTapeNum(item)) throw  tmSyntaError(line,Line,token_head);
         matchR
-        break;Line++;
+        Line++;break;
     }
     head="";
     for(;std::getline(file,line);Line++){
