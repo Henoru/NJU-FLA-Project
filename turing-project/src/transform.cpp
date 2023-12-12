@@ -34,7 +34,7 @@ std::optional<TransTarget> TransformRules::dfs(node* cur,uint32_t ind,std::strin
         res=dfs(cur->ch[str[ind]],ind+1,str);
     if(res.has_value())
         return res;
-    if(cur->ch['*']!=nullptr)
+    if(str[ind]!='_'&&cur->ch['*']!=nullptr)
         res=dfs(cur->ch['*'],ind+1,str);
     return res;
 }
