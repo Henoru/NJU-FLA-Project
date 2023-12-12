@@ -48,7 +48,7 @@ std::optional<TransTarget> TransformRules::match(std::string_view str){
         }
         if(cur.v->ch[str[cur.depth]]!=nullptr) 
             queue.emplace(cur.v->ch[str[cur.depth]],cur.depth+1);
-        if(cur.v->ch['*']!=nullptr) 
+        if(str[cur.depth]!='_'&&cur.v->ch['*']!=nullptr) 
             queue.emplace(cur.v->ch['*'],cur.depth+1);
     }
     return std::nullopt;
