@@ -18,7 +18,7 @@ bool TransformRules::add(std::string_view mode,uint32_t newState,Move move){
         cur=cur->ch[x];
     }
     if(cur->tar==nullptr) cur->tar=new TransTarget(newState,move);
-    else return false;
+    else return true;
     cnt++;
     return true;
 }
