@@ -24,6 +24,10 @@ ret1 ca ca *l ret1
 ret1 cb cb *l ret1
 ret1 c_ __ rr mat
 
+;invaid
+0 __ _c ** f
+1 __ _c ** retF
+
 ; mat u & u
 mat aa __ rr mat
 mat bb __ rr mat
