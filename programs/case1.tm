@@ -1,4 +1,4 @@
-#Q = {0,a,b,ret,cpy,bak,acc,ilg,emp,inv,i,il,ill,lle,leg,ega,gal,inr,al_,l_i,_in,inp,npu,put}
+#Q = {0,a,b,ret,cpy,bak,acc,ilg,emp,inv,i,il,ill,lle,leg,ega,gal,inr,al_,l_i,_in,inp,npu,put,invret}
 
 #S = {a,b}
 
@@ -12,23 +12,24 @@
 
 #N = 3
 
-;0: Start move a to Tape 1 b To Tape 2
-0   a__ Xa_ rr* a
+;0: Start move a to Tape 1 and move b to Tape 2
+0   a__ Xa_ rr* a   ; move a to tape 1
 a   a__ _a_ rr* a
-a   b__ __b r*r b
+a   b__ __b r*r b   ; move b to tape 2
 b   b__ __b r*r b 
-b   ___ ___ lll ret
+b   ___ ___ lll ret ; clear tape 0
 ret _** _** l** ret
 ret Xa* Xa* *l* ret
 ret X_b X_b **l ret
-ret X__ ___ *rr cpy
-;illegal input
-0 b** b** *** emp ; no a
-0 _** _** *** emp ; empty
-a _** _** *** inv ; no b
-b a** a** *** inv ; a between b
+ret X__ ___ *rr cpy ; cpy: start to cpy b for a times
 
-;1: Start copy b to Tape0
+;illegal input 
+0 b__ X__ *** inv ; no a
+0 ___ ___ *** emp ; empty input
+a ___ ___ *** inv ; no b
+b a__ a__ *** inv ; a between b
+
+;1: Start copy b for a times to tape 0
 cpy _ab cab r*r cpy
 cpy _a_ _a_ **l bak
 bak _ab _ab **l bak
@@ -36,24 +37,24 @@ bak _a_ _a_ *rr cpy
 cpy __b __b *** acc
 
 ;2: write Illegal_Input
-emp *** I** r** i
-i   *** l** r** il
-il  *** l** r** ill
-ill *** e** r** lle
-lle *** g** r** leg
-leg *** a** r** ega
-ega *** l** r** gal
-gal *** _** r** al_
-al_ *** I** r** l_i
-l_i *** n** r** _in 
-_in *** p** r** inp
-inp *** u** r** npu
-npu *** t** r** put
-put a** _** r** put
-put b** _** r** put
+emp ___ I__ r** i
+i   ___ l__ r** il
+il  ___ l__ r** ill
+ill ___ e__ r** lle
+lle ___ g__ r** leg
+leg ___ a__ r** ega
+ega ___ l__ r** gal
+gal ___ ___ r** al_
+al_ ___ I__ r** l_i
+l_i ___ n__ r** _in 
+_in ___ p__ r** inp
+inp ___ u__ r** npu
+npu ___ t__ r** put
 
-inv a** _** r** inv
-inv b** _** r** inv
-inv _** _** l** inr ; return to X__
-inr _** _** l** inr 
-inr X** _** *** emp
+inv a__ ___ r** inv
+inv b__ ___ r** inv
+inv ___ ___ l** invret
+invret ___ ___ l** invret
+invret a__ ___ l** invret
+invret b__ ___ l** invret
+invret X__ ___ *** emp

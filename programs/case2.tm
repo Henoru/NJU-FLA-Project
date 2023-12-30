@@ -1,8 +1,8 @@
-#Q = {0,acc,ret,mat,retT,retF,t,tr,tru,true,f,fa,fal,fals,false,clr}
+#Q = {0,1,mat,ret1,retT,retF,clrF,t,tr,tru,true,f,fa,fal,fals,false,acc,unacc}
 
 #S = {a,b,c}
 
-#G = {a,b,c,_,t,r,u,e,f,l,s}
+#G = {a,b,c,_,t,r,u,e,f,l,s,X}
 
 #q0 = 0
 
@@ -12,54 +12,49 @@
 
 #N = 2
 
-;0 move u in ucu to tape 1
-0   a_ aa rr 0
-0   b_ bb rr 0
-0   c_ c_ rl ret
+; move u to tape 1
 
-;when find c tape 1 index return to head
+0    a_ Xa rr 1
+0    b_ Xb rr 1
+0    c_ X_ r* mat
+1    a_ _a rr 1
+1    b_ _b rr 1
+1    c_ c_ *l ret1 ;return to tape1 head
+ret1 ca ca *l ret1
+ret1 cb cb *l ret1
+ret1 c_ __ rr mat
 
-ret *a *a *l ret
-ret *b *b *l ret
-ret *_ *_ *r mat
+; mat u & u
+mat aa __ rr mat
+mat bb __ rr mat
+mat __ _c l* retT
 
-;match u u
-mat aa aa rr mat
-mat bb bb rr mat
-mat __ __ ll retT
+mat ab _c r* clrF
+mat ba _c r* clrF
+mat a_ _c r* clrF
+mat b_ _c r* clrF
+mat c* _c r* clrF
+mat c_ _c r* clrF
 
-; stupid ** if match mode
-mat ab ab ll retF
-mat ba ba ll retF
-mat a_ a_ ll retF
-mat b_ b_ ll retF
-mat _a _a ll retF
-mat _b _b ll retF
+mat _* _c l* retF
 
-; retT and write True
-retT a* a* l* retT 
-retT b* b* l* retT 
-retT c* c* l* retT 
-retT _* _* r* acc
-acc  ** ** ** t
-t    ** t* r* tr
-tr   ** r* r* tru 
-tru  ** u* r* true
-true ** e* r* clr
+; clear tape 1
+clrF ** _* r* clrF
+clrF _* _* l* retF
 
-; retF and write False
-retF a* a* l* retF
-retF b* b* l* retF
-retF c* c* l* retF 
-retF _* _* r* f
+;retT retF
+retT _* _* l* retT
+retT X* _* ** t
+retF _* _* l* retF
+retF X* _* ** f
 
-f     ** f* r* fa
-fa    ** l* r* fal
-fal   ** a* r* fals
-fals  ** s* r* false
-false ** e* r* clr
+t    _* t* r* tr
+tr   _* r* r* tru
+tru  _* u* r* true
+true _* e* ** acc  
 
-;clear longer than answer
-clr  a* _* r* clr
-clr  b* _* r* clr
-clr  c* _* r* clr
+f     _* f* r* fa
+fa    _* a* r* fal
+fal   _* l* r* fals
+fals  _* s* r* false
+false _* e* r* unacc
