@@ -51,8 +51,7 @@ _in ___ p__ r** inp
 inp ___ u__ r** npu
 npu ___ t__ r** put
 
-inv a__ ___ r** inv
-inv b__ ___ r** inv
+inv *__ *__ r** inv
 inv ___ ___ l** invret
 invret ___ ___ l** invret
 invret a__ ___ l** invret
